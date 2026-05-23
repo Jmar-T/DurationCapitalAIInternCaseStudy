@@ -1,0 +1,11 @@
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Local IDE folders
+.vscode/
+.idea/
+
+# Data and Results
+data/
+results/

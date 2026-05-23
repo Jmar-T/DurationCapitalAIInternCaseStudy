@@ -1,49 +1,7 @@
 import os
 import pandas as pd
+import clean_client_names
 
-def clean_client_names(df):
-    # 1. Print how many unique dirty client names exist before cleaning
-    dirty_unique_count = df['client_name'].nunique()
-    # print(f"📊 Total unique dirty client names found in raw data: {dirty_unique_count}")
-    
-    # 2. Hardcoded Alias Map for client name variations
-    acronym_map = {
-        "boston med ctr": "Boston Medical Center",
-        "boston medical center": "Boston Medical Center",
-        "brigham & womens": "Brigham and Womens",
-        "brigham and womens": "Brigham and Womens",
-        "mgh": "Mass General Hospital",
-        "mass general hospital": "Mass General Hospital",
-        "childrens hospital": "Childrens Hospital",
-        "children's hospital": "Childrens Hospital",
-        "ne labs": "Northeast Laboratory",
-        "northeast labs": "Northeast Laboratory",
-        "northeast laboratory": "Northeast Laboratory",
-        "quest diag": "Quest Diagnostics",
-        "quest diagnostics": "Quest Diagnostics",
-        "tufts med center": "Tufts Medical",
-        "tufts medical": "Tufts Medical",
-        "labcorp inc": "LabCorp",
-        "labcorp": "LabCorp",
-        "bio_reference_labs": "BioReference Labs",
-        "bioreference labs": "BioReference Labs"
-    }
-    
-    # 3. Normalize the text safely and apply the mapping dictionary
-    def normalize_and_map(raw_name):
-        if pd.isna(raw_name):
-            return raw_name
-        # Lowercase and remove punctuation to prevent spacing or casing misses
-        clean_key = str(raw_name).lower().replace("'", "").replace(".", "").strip()
-        return acronym_map.get(clean_key, raw_name)
-    
-    df['client_name_clean'] = df['client_name'].apply(normalize_and_map)
-    
-    # 4. Print clean confirmation
-    clean_unique_count = df['client_name_clean'].nunique()
-    # print(f"🔄 Standardized down to {clean_unique_count} clean client groups.\n")
-    
-    return df
 
 def group_weeks(file_name:str):
     script_dir = os.path.dirname(os.path.abspath(__file__))

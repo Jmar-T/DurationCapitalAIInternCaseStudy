@@ -9,6 +9,9 @@ __pycache__/
 # Data and Results
 data/
 results/
+# Local Operator Tribal Knowledge Notes
+data/local_driver_notes.csv
+data/local_client_notes.csv
 
 #Models
 models/

@@ -11,8 +11,10 @@ This pipeline utilizes external machine learning frameworks and data analysis to
 2. Open your terminal in the root directory and install the necessary dependencies via `pip`:
    ```bash
    pip install -r requirements.txt
-Project Structure
-Plaintext
+
+### Project Structure
+
+```Plaintext
 ├── data/
 │   ├── dispatch_log_q1(in).csv        # Raw logistics log input
 │   ├── local_client_notes.csv         # Local operational notes cache (Git ignored)
@@ -29,8 +31,11 @@ Plaintext
     ├── urgent_actions_YYYY-MM-DD...   # Timestamped critical exception logs
     ├── deferred_actions_YYYY-MM-DD... # Timestamped non-critical exception logs
     └── log_only_records_YYYY-MM-DD... # Timestamped minor operational logs
-Execution
+```
+### Execution
+
 To process raw logs and generate weekly performance metrics with ML triage output files:
+
 ```Bash
 python src/build_reports.py
 ```

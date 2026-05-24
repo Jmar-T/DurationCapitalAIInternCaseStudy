@@ -21,7 +21,9 @@ This pipeline utilizes external machine learning frameworks and data analysis to
 │   └── local_driver_notes.csv         # Local operator tribal knowledge (Git ignored)
 ├── src/
 │   ├── build_reports.py               # Automated pipeline execution script
-│   ├── clean_data.py                  # Core data cleaning & string normalization library
+│   ├── clean_data.py                  # Core data cleaning & string 
+|   ├── exception_triage.py            # Automated triage of exceptions script
+normalization library
 │   ├── inquires.py                    # Interactive client tracking portal application
 │   └── operator_notes.py              # Standalone tribal knowledge management engine
 ├── models/

@@ -2,15 +2,16 @@ import os
 import pandas as pd
 from transformers import pipeline
 from datetime import datetime
+from clean_data import clean_client_names
 
 def triage_dispatch_exceptions(file_name: str):
-    # 1. Paths relative to this script
+    # 1. Absolute pathing relative to the location of this script file
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    input_path = os.path.join(script_dir, "..", "data", file_name)
+    input_path = os.path.abspath(os.path.join(script_dir, "..", "data", file_name))
     
-    # Paths for all 3 output buckets
-    results_dir = os.path.join(script_dir, "..", "results")
-    os.makedirs(results_dir, exist_ok=True) # Ensure directory exists
+    # Paths for all 3 output buckets anchored perfectly to the project root
+    results_dir = os.path.abspath(os.path.join(script_dir, "..", "results"))
+    os.makedirs(results_dir, exist_ok=True)
 
     # Time string like: "2026-05-23_13-05" (Year-Month-Day_Hour-Minute)
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
@@ -23,6 +24,8 @@ def triage_dispatch_exceptions(file_name: str):
     print(f"Loading data from: {input_path}")
     df = pd.read_csv(input_path)
     
+    # Run client cleaning pipeline to maintain name consistency across output files
+    df = clean_client_names(df)
     
     # 3. Optimize ML execution: Extract unique, non-null exception text
     print("Extracting unique exceptions for optimization...")
@@ -33,24 +36,18 @@ def triage_dispatch_exceptions(file_name: str):
         print("No exceptions found in the log file! Exiting pipeline smoothly.")
         return
 
-    # # 4. Initialize the fast, compressed zero-shot classification model
-    # print("Loading local ML engine (valhalla/distilbart-mnli-12-1)... (This make take a minute on the first run)")
-    # pipe = pipeline(
-    #     "zero-shot-classification", 
-    #     model="valhalla/distilbart-mnli-12-1"
-    # )
     model_name = "valhalla/distilbart-mnli-12-1"
-    # model_name = "typeform/mobilebert-uncased-mnli" ## switch model name to download faster
     local_model_dir = os.path.join(script_dir, "..", "models", "distilbart_zero_shot")
     
-    print("🤖 Initializing ML engine...")
+    print("Initializing ML engine...")
     if not os.path.exists(local_model_dir):
-        print("📥 First run detected: Downloading and saving model locally to models/ directory...")
+        print("First run detected: Downloading and saving model locally to models/ directory...")
         pipe = pipeline("zero-shot-classification", model=model_name)
         pipe.save_pretrained(local_model_dir)
     else:
-        print("💾 Local copy found! Loading model directly from project folder...")
+        print("Local copy found! Loading model directly from project folder...")
         pipe = pipeline("zero-shot-classification", model=local_model_dir)
+        
     # Core classification buckets
     candidate_labels = ["URGENT", "DEFERRABLE", "LOG_ONLY"]
     
@@ -82,9 +79,9 @@ def triage_dispatch_exceptions(file_name: str):
             if pd.isna(note) or not str(note).strip():
                 continue
                 
-            # Extract row meta-data metrics safely
+            # Extract row meta-data metrics safely (using the cleaned name variant)
             order_num = row.get('order_id', 'UNKNOWN_ID')
-            client = row.get('client_name', 'UNKNOWN_CLIENT')
+            client = row.get('client_name_clean', 'UNKNOWN_CLIENT')
             
             # Lookup the assigned priority classification
             priority = triage_map.get(str(note).strip(), "LOG_ONLY")
@@ -103,5 +100,4 @@ def triage_dispatch_exceptions(file_name: str):
     print("Local AI Triage Pipeline completed successfully!")
 
 if __name__ == "__main__":
-    # Test execution string targeting your log file
     triage_dispatch_exceptions("dispatch_log_q1(in).csv")

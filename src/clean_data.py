@@ -9,7 +9,6 @@ acronym_map = {
     "mgh": "Mass General Hospital",
     "mass general hospital": "Mass General Hospital",
     "childrens hospital": "Childrens Hospital",
-    "childrens hospital": "Childrens Hospital",
     "ne labs": "Northeast Laboratory",
     "northeast labs": "Northeast Laboratory",
     "northeast laboratory": "Northeast Laboratory",
@@ -24,12 +23,14 @@ acronym_map = {
 }
 
 def _normalize_string(text: str) -> str:
-    """Helper utility to ensure input matching parity across dataframes and user prompts."""
+    """Helper utility to ensure input matching across dataframes and user prompts."""
     if pd.isna(text):
         return ""
-    return str(text).lower().replace("'", "").replace(".", "").strip()
+    # Strip spaces, punctuation, dashes, and underscores for  matching 
+    return str(text).lower().replace("'", "").replace(".", "").replace("-", " ").replace("_", " ").strip()
 
 def clean_client_names(df):
+    df = df.copy()
     dirty_unique_count = df['client_name'].nunique()
     print(f"Total unique dirty client names found in raw data: {dirty_unique_count}")
     

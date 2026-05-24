@@ -1,9 +1,9 @@
 import os
 import pandas as pd
-import clean_client_names
+from clean_data import clean_client_names
 
 
-def group_weeks(file_name:str):
+def group_weeks(file_name: str):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     full_path = os.path.join(script_dir, "..", "data", file_name)
     
@@ -16,7 +16,7 @@ def group_weeks(file_name:str):
     # Converting time column date/time to a time date/time objects
     df['order_time'] = pd.to_datetime(df['order_time'])
 
-    # Create a 'week' column (e.g., 2026-05-18/2026-05-24)
+    # Create a 'week' column
     df['week'] = df['order_time'].dt.to_period('W')
 
     # Groups order by week
@@ -28,10 +28,12 @@ def get_monday_report(weekly_groups):
     Accepts the weekly_groups object, processes weekly metrics,
     and writes out individual text reports to the 'results' folder.
     """
-    # 1. Establish where the script is, and step back one folder to the project root
-    script_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in locals() else '.'
-    output_dir = os.path.abspath(os.path.join(script_dir, "results"))
+    # 1. Dynamically find the absolute path of the script itself
+    current_file_path = os.path.abspath(__file__)
+    src_dir = os.path.dirname(current_file_path)
     
+    # Step back one level to the project root, then target the 'results' folder
+    output_dir = os.path.abspath(os.path.join(src_dir, "..", "results"))
     
     # 2. Create the folder automatically if it doesn't exist yet
     os.makedirs(output_dir, exist_ok=True)
@@ -85,10 +87,10 @@ def get_monday_report(weekly_groups):
                 on_time_rate = (on_time_count / total_ops) * 100 if total_ops > 0 else 0
                 file.write(f"{driver} on time rate: {on_time_rate:.1f}%\n")
 
-        print(f"💾 Saved text report to: {full_output_path}")
+        print(f"Saved text report to: {full_output_path}")
 
+    print(f"\nExecution complete. Created reports inside: {output_dir}")
 
-    print(f"\n✅ Execution complete. Created reports inside: {output_dir}")
-            
-weekly_groups = group_weeks("dispatch_log_q1(in).csv")
-get_monday_report(weekly_groups)
+if __name__ == "__main__":          
+    weekly_groups = group_weeks("dispatch_log_q1(in).csv")
+    get_monday_report(weekly_groups)

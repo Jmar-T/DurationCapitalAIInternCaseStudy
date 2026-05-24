@@ -62,7 +62,7 @@ def add_or_update_note():
     initialize_notes_files()
     
     print("\n=========================================")
-    print("ADD / UPDATE OPERATOR NOTES           ")
+    print("ADD / UPDATE OPERATOR NOTES")
     print("=========================================\n")
     
     user_query = input("Enter Driver ID/Name or Client Name to edit: ").strip()
@@ -88,10 +88,16 @@ def add_or_update_note():
             print(f"Current Notes: \"{current_notes}\"")
         else:
             idx = len(df)
-            # Handle if they registered via a brand new ID vs a brand new Name
             is_id = bool(re.match(r"^[Dd]\d{3}$", standard_key))
-            driver_name = "Unknown Driver" if is_id else standard_key.title()
             driver_id = standard_key.upper() if is_id else "UNKNOWN"
+            
+            if is_id:
+                driver_name = input(f"Creating profile for ID {driver_id}. Enter Driver Name: ").strip().title()
+                if not driver_name:
+                    driver_name = "Unknown Driver"
+            else:
+                driver_name = standard_key.title()
+                
             print(f"\nCreating a brand new local note profile for Driver: '{driver_name}'.")
             current_notes = ""
 
@@ -130,7 +136,7 @@ def add_or_update_note():
             
         df.loc[idx, 'client_clean_name'] = standard_key
         df.to_csv(CLIENT_NOTES_PATH, index=False)
-        print("✅ Client notes updated and written to local database safely.")
+        print("Client notes updated and written to local database safely.")
 
 def get_profile_notes():
     """
@@ -139,10 +145,10 @@ def get_profile_notes():
     initialize_notes_files()
     
     print("\n=========================================")
-    print(" RETRIEVE OPERATOR NOTES               ")
+    print("RETRIEVE OPERATOR NOTES")
     print("=========================================\n")
     
-    user_query = input("🔍 Enter Search Target (Driver ID/Name or Client Name): ").strip()
+    user_query = input("Enter Search Target (Driver ID/Name or Client Name): ").strip()
     if not user_query:
         print("Search string cannot be empty.")
         return
@@ -157,7 +163,7 @@ def get_profile_notes():
         ]
         
         if match.empty:
-            print(f"\nℹ️ No operational notes logged for Driver matching: '{user_query}'")
+            print(f"\nNo operational notes logged for Driver matching: '{user_query}'")
             return
             
         row = match.iloc[0]
